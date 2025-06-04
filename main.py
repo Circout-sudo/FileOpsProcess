@@ -1,8 +1,9 @@
 import os
 import re
+import shutil
 from datetime import date, datetime
-
 from colorama import Fore, Style, init
+import time
 
 init()
 
@@ -26,9 +27,9 @@ def extract_date_from_filename(filename):
             else:
                 return datetime.strptime(date_str, "%Y%m%d").date()
         except ValueError:
-            print(f"Invalid date in filename: {filename}")
+            pass
     else:
-        print(f"No valid date found in filename: {filename}")
+        pass
     
     return None
 
@@ -41,15 +42,21 @@ def sort_files_by_date_diff(date_diff, filename, invalid_files, valid_files):
 
     return valid_files, invalid_files
 
-def display_results(valid_files, invalid_files):
+def display_results(valid_files, invalid_files, invalid_file_path):
     """Print categorized results to console."""
     print(Fore.GREEN + "VALID FILES:" + Style.RESET_ALL)
     for file in valid_files:
         print("✅", file)
+        time.sleep(1)
     
     print("\n" + Fore.RED + "INVALID FILES:" + Style.RESET_ALL)
     for file in invalid_files:
         print("❌", file)
+        try:
+            shutil.move("test_files/" + file,invalid_file_path)
+        except shutil.Error:
+            print("")
+        time.sleep(1)
 
     print("\nSummary:")
     print("Valid files:", len(valid_files))
@@ -57,6 +64,7 @@ def display_results(valid_files, invalid_files):
 
 if __name__ == "__main__":
     # Set paths and initialize lists
+    invalid_file_path = 'invalid'
     file_directory = "test_files"
     current_date = date.today()
     
@@ -77,4 +85,4 @@ if __name__ == "__main__":
         print(f"Directory not found: {file_directory}")
     
     # Display final results
-    display_results(valid_files, invalid_files)
+    display_results(valid_files, invalid_files, invalid_file_path)
