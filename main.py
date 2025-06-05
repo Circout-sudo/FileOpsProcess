@@ -76,11 +76,22 @@ def sort_files_by_date_diff(date_diff, filename, invalid_files, valid_files, amb
     return valid_files, invalid_files, ambiguous_files
 
 def display_results(valid_files, invalid_files, ambiguous_files):
+
     """Print categorized results to console."""
     print(Fore.GREEN + "FILES WHICH ARE VALID:" + Style.RESET_ALL)
     for file in valid_files:
         print("✅", file)
         time.sleep(1)
+        match2 = re.search(r"(\d{4})[_-]?(\d{2})",file)
+        if match2:
+            year = match2.group(1) 
+            month = match2.group(2)
+            try:
+                os.makedirs("autoarchive/" + year + "/" + month)
+                shutil.move( "test_files/"+file, "autoarchive/" + year + "/" + month)
+            except FileExistsError:
+                shutil.move( "test_files/"+file, "autoarchive/" + year + "/" + month)
+ 
     
     print("\n" + Fore.YELLOW + "FILES MOVED TO AMBIGUOUS FOLDER:" + Style.RESET_ALL)
     for file in ambiguous_files:
@@ -118,7 +129,7 @@ if __name__ == "__main__":
         for file in files:
             file_date = extract_date_from_filename(file)
             if file_date:
-                if file_date == "ambiguous":
+                if file_date == "ambiguous": 
                     sort_files_by_date_diff("ambiguous", file, invalid_files, valid_files, ambiguous_files, invalid_file_path, ambiguous_file_path)
                 elif isinstance(file_date, tuple):
                     # Handle the case where two dates were found
