@@ -3,7 +3,6 @@ import re
 import shutil
 from datetime import date, datetime
 from colorama import Fore, Style, init
-import time
 
 init()
 
@@ -11,6 +10,32 @@ init()
 date_pattern = re.compile(r'\d{8}')
 date_pattern2 = re.compile(r'\d{4}-\d{2}-\d{2}')
 date_pattern3 = re.compile(r'\d{8}-\d{4}-\d{2}-\d{2}')
+
+def creategrouptxtfile(grouptxtfile):
+    with open('file_group.txt', 'w') as f:
+        for item in grouptxtfile:
+            f.write(item+"/n")
+
+def find_date_pattern(file,grouptxtfile):
+    """Find out which of three date patterns the file_uses"""
+    date_patterns = [
+        r'\d{8}',  
+        r'\d{4}-\d{2}-\d{2}',  
+        r'\d{8}-\d{4}-\d{2}-\d{2}'
+    ]
+
+    for pattern in date_patterns:
+        match3 = re.search(pattern, file)
+        if match3:
+            pattern_literal = pattern.replace("\\", r"\\")
+            new_file_name = re.sub(pattern, pattern_literal, file)
+            grouptxtfile.append(new_file_name)
+            return pattern
+        
+
+
+    return None
+
 
 def is_ambiguous(date_str):
     """Check if a date string can be interpreted in multiple valid ways."""
@@ -81,7 +106,7 @@ def display_results(valid_files, invalid_files, ambiguous_files):
     print(Fore.GREEN + "FILES WHICH ARE VALID:" + Style.RESET_ALL)
     for file in valid_files:
         print("✅", file)
-        time.sleep(1)
+        find_date_pattern(file,grouptxtfile)
         match2 = re.search(r"(\d{4})[_-]?(\d{2})",file)
         if match2:
             year = match2.group(1) 
@@ -96,12 +121,10 @@ def display_results(valid_files, invalid_files, ambiguous_files):
     print("\n" + Fore.YELLOW + "FILES MOVED TO AMBIGUOUS FOLDER:" + Style.RESET_ALL)
     for file in ambiguous_files:
         print("❓", file)
-        time.sleep(1)
     
     print("\n" + Fore.RED + "FILES MOVED TO INVALID FOLDER:" + Style.RESET_ALL)
     for file in invalid_files:
         print("❌", file)
-        time.sleep(1)
 
     print("\nSummary:")
     print("Valid files:", len(valid_files))
@@ -122,6 +145,7 @@ if __name__ == "__main__":
     valid_files = []
     invalid_files = []
     ambiguous_files = []
+    grouptxtfile = []
 
     # Process each file
     try:
@@ -152,3 +176,4 @@ if __name__ == "__main__":
     
     # Display final results
     display_results(valid_files, invalid_files, ambiguous_files)
+    creategrouptxtfile(grouptxtfile)    
